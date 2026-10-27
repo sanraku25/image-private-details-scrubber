@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Aegis Privacy - AI & Image Data Scrubber</title>
+    <style>
+        :root {
+            --bg-color: #0f172a;
+            --card-bg: #1e293b;
+            --accent: #38bdf8;
+            --accent-hover: #0ea5e9;
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
+            --border: #334155;
+        }
+        body {
+            font-family: system-ui, -apple-system, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+        }
+        .container {
+            width: 100%;
+            max-width: 800px;
+        }
+        header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        header h1 {
+            color: var(--accent);
+            margin-bottom: 5px;
+            font-size: 2rem;
+        }
+        header p {
+            color: var(--text-muted);
+            font-size: 0.95rem;
+        }
+        .card {
+            background-color: var(--card-bg);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 24px;
+            margin-bottom: 24px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        }
+        .card h2 {
+            margin-top: 0;
+            font-size: 1.25rem;
+            border-bottom: 1px solid var(--border);
+            padding-bottom: 10px;
+        }
+        textarea {
+            width: 100%;
+            height: 120px;
+            background-color: #0f172a;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            color: var(--text-main);
+            padding: 12px;
+            font-size: 0.9rem;
+            resize: vertical;
+            box-sizing: border-box;
+            margin-bottom: 12px;
+        }
+        textarea:focus {
+            outline: none;
+            border-color: var(--accent);
+        }
+        .btn {
+            background-color: var(--accent);
+            color: #0f172a;
+            border: none;
+            padding: 10px 20px;
+            font-weight: bold;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+        .btn:hover {
+            background-color: var(--accent-hover);
+        }
+        input[type="file"] {
+            display: none;
+        }
+        .file-upload-label {
+            display: block;
+            border: 2px dashed var(--border);
+            border-radius: 8px;
+            padding: 30px;
+            text-align: center;
+            cursor: pointer;
+            color: var(--text-muted);
+            transition: border-color 0.2s, color 0.2s;
+        }
+        .file-upload-label:hover {
+            border-color: var(--accent);
+            color: var(--text-main);
+        }
+        .output-box {
+            background-color: #0f172a;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 12px;
+            margin-top: 12px;
+            font-family: monospace;
+            font-size: 0.85rem;
+            white-space: pre-wrap;
+            word-break: break-all;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Aegis Privacy Scrubber</h1>
+            <p>Zero-dependency, 100% browser-based tool to wipe image EXIF metadata and sanitize PII text.</p>
+        </header>
+
+        <div class="card">
+            <h2>Text / PII Anonymizer</h2>
+            <textarea id="textInput" placeholder="Paste text containing emails, phone numbers, or IDs..."></textarea>
+            <button class="btn" onclick="scrubText()">Sanitize Text</button>
+            <div id="textOutput" class="output-box" style="display:none;"></div>
+        </div>
+
+        <div class="card">
+            <h2>Image EXIF Metadata Stripper</h2>
+            <label class="file-upload-label" for="imageInput">
+                📁 Click here to select an image or drag & drop<br>
+                <span style="font-size: 0.8rem; color: var(--text-muted);">(GPS, device tags, and timestamps will be cleanly stripped)</span>
+            </label>
+            <input type="file" id="imageInput" accept="image/*" onchange="scrubImage(event)">
+            <div id="imageStatus" style="margin-top: 15px; font-size: 0.9rem; color: var(--accent);"></div>
+        </div>
+    </div>
+
+    <script>
+        function scrubText() {
+            let text = document.getElementById('textInput').value;
+            if (!text.trim()) return;
+            text = text.replace(/[\w\.-]+@[\w\.-]+\.\w+/g, '[REDACTED_EMAIL]');
+            text = text.replace(/\b\d{10}\b/g, '[REDACTED_PHONE]');
+            text = text.replace(/\b\d{4}\s?\d{4}\s?\d{4}\b/g, '[REDACTED_ID]');
+            const outputDiv = document.getElementById('textOutput');
+            outputDiv.style.display = 'block';
+            outputDiv.textContent = text;
+        }
+
+        function scrubImage(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+            const status = document.getElementById('imageStatus');
+            status.textContent = "Processing image in browser memory...";
+
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const img = new Image();
+                img.onload = function() {
+                    const canvas = document.createElement('canvas');
+                    canvas.width = img.width;
+                    canvas.height = img.height;
+                    const ctx = canvas.getContext('2d');
+                    ctx.drawImage(img, 0, 0);
+
+                    canvas.toBlob(function(blob) {
+                        const cleanUrl = URL.createObjectURL(blob);
+                        status.innerHTML = `✅ Successfully scrubbed!<br><a href="${cleanUrl}" download="clean_${file.name}" style="color: var(--accent); font-weight: bold; text-decoration: underline; display: inline-block; margin-top: 8px;">Download Clean Image Without EXIF</a>`;
+                    }, file.type);
+                };
+                img.src = e.target.result;
+            };
+            reader.readAsDataURL(file);
+        }
+    </script>
+</body>
+</html>
