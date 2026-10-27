@@ -6,148 +6,318 @@
     <title>Aegis Privacy - AI & Image Data Scrubber</title>
     <style>
         :root {
-            --bg-color: #0f172a;
-            --card-bg: #1e293b;
+            --bg: #090d16;
+            --card-bg: rgba(15, 23, 42, 0.75);
+            --border: #1e293b;
             --accent: #38bdf8;
+            --accent-glow: rgba(56, 189, 248, 0.15);
             --accent-hover: #0ea5e9;
             --text-main: #f8fafc;
             --text-muted: #94a3b8;
-            --border: #334155;
+            --success: #34d399;
         }
-        body {
-            font-family: system-ui, -apple-system, sans-serif;
-            background-color: var(--bg-color);
-            color: var(--text-main);
+
+        * {
+            box-sizing: border-box;
             margin: 0;
-            padding: 20px;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+            background-color: var(--bg);
+            background-image: 
+                radial-gradient(at 0% 0%, rgba(56, 189, 248, 0.08) 0px, transparent 50%),
+                radial-gradient(at 100% 100%, rgba(99, 102, 241, 0.08) 0px, transparent 50%);
+            color: var(--text-main);
+            min-height: 100vh;
             display: flex;
             flex-direction: column;
             align-items: center;
-            min-height: 100vh;
+            padding: 40px 20px;
         }
+
         .container {
             width: 100%;
-            max-width: 800px;
+            max-width: 850px;
         }
+
         header {
             text-align: center;
-            margin-bottom: 30px;
+            margin-bottom: 40px;
         }
-        header h1 {
+
+        .badge {
+            display: inline-block;
+            background: var(--accent-glow);
             color: var(--accent);
-            margin-bottom: 5px;
-            font-size: 2rem;
+            border: 1px solid rgba(56, 189, 248, 0.3);
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+            margin-bottom: 12px;
+            text-transform: uppercase;
         }
+
+        header h1 {
+            font-size: 2.5rem;
+            font-weight: 800;
+            background: linear-gradient(135deg, #ffffff 0%, var(--accent) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 10px;
+        }
+
         header p {
             color: var(--text-muted);
-            font-size: 0.95rem;
+            font-size: 1rem;
+            max-width: 550px;
+            margin: 0 auto;
+            line-height: 1.5;
         }
+
         .card {
-            background-color: var(--card-bg);
+            background: var(--card-bg);
+            backdrop-filter: blur(12px);
             border: 1px solid var(--border);
-            border-radius: 12px;
-            padding: 24px;
-            margin-bottom: 24px;
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            border-radius: 16px;
+            padding: 28px;
+            margin-bottom: 28px;
+            box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.5);
         }
-        .card h2 {
-            margin-top: 0;
-            font-size: 1.25rem;
+
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 18px;
+            padding-bottom: 12px;
             border-bottom: 1px solid var(--border);
-            padding-bottom: 10px;
         }
+
+        .card-title {
+            font-size: 1.25rem;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
         textarea {
             width: 100%;
-            height: 120px;
-            background-color: #0f172a;
+            height: 130px;
+            background-color: rgba(15, 23, 42, 0.6);
             border: 1px solid var(--border);
-            border-radius: 8px;
+            border-radius: 10px;
             color: var(--text-main);
-            padding: 12px;
-            font-size: 0.9rem;
+            padding: 14px;
+            font-size: 0.95rem;
             resize: vertical;
-            box-sizing: border-box;
-            margin-bottom: 12px;
+            transition: all 0.2s ease;
         }
+
         textarea:focus {
             outline: none;
             border-color: var(--accent);
+            box-shadow: 0 0 0 3px var(--accent-glow);
         }
+
         .btn {
             background-color: var(--accent);
-            color: #0f172a;
+            color: #090d16;
             border: none;
-            padding: 10px 20px;
-            font-weight: bold;
-            border-radius: 8px;
+            padding: 12px 24px;
+            font-weight: 700;
+            border-radius: 10px;
             cursor: pointer;
-            transition: background 0.2s;
+            transition: all 0.2s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            margin-top: 14px;
         }
+
         .btn:hover {
             background-color: var(--accent-hover);
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(56, 189, 248, 0.3);
         }
+
+        .stats-bar {
+            display: flex;
+            gap: 16px;
+            margin-top: 14px;
+        }
+
+        .stat-item {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 8px 14px;
+            font-size: 0.85rem;
+            color: var(--text-muted);
+        }
+
+        .stat-item span {
+            color: var(--accent);
+            font-weight: 700;
+        }
+
+        .drop-zone {
+            border: 2px dashed var(--border);
+            border-radius: 12px;
+            padding: 40px 20px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            background: rgba(15, 23, 42, 0.3);
+        }
+
+        .drop-zone:hover, .drop-zone.dragover {
+            border-color: var(--accent);
+            background: var(--accent-glow);
+        }
+
+        .drop-zone-icon {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+        }
+
+        .drop-zone p {
+            color: var(--text-main);
+            font-weight: 600;
+            margin-bottom: 4px;
+        }
+
+        .drop-zone sub {
+            color: var(--text-muted);
+            font-size: 0.85rem;
+        }
+
         input[type="file"] {
             display: none;
         }
-        .file-upload-label {
-            display: block;
-            border: 2px dashed var(--border);
-            border-radius: 8px;
-            padding: 30px;
-            text-align: center;
-            cursor: pointer;
-            color: var(--text-muted);
-            transition: border-color 0.2s, color 0.2s;
-        }
-        .file-upload-label:hover {
-            border-color: var(--accent);
-            color: var(--text-main);
-        }
+
         .output-box {
-            background-color: #0f172a;
+            background-color: rgba(9, 13, 22, 0.8);
             border: 1px solid var(--border);
-            border-radius: 8px;
-            padding: 12px;
-            margin-top: 12px;
-            font-family: monospace;
-            font-size: 0.85rem;
+            border-radius: 10px;
+            padding: 16px;
+            margin-top: 16px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9rem;
             white-space: pre-wrap;
             word-break: break-all;
+            display: none;
+        }
+
+        .success-box {
+            background: rgba(52, 211, 153, 0.1);
+            border: 1px solid rgba(52, 211, 153, 0.3);
+            border-radius: 10px;
+            padding: 16px;
+            margin-top: 16px;
+            display: none;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .download-link {
+            background-color: var(--success);
+            color: #090d16;
+            padding: 10px 18px;
+            border-radius: 8px;
+            font-weight: 700;
+            text-decoration: none;
+            transition: opacity 0.2s;
+        }
+
+        .download-link:hover {
+            opacity: 0.9;
+        }
+
+        footer {
+            margin-top: auto;
+            text-align: center;
+            color: var(--text-muted);
+            font-size: 0.85rem;
+            padding-top: 20px;
         }
     </style>
 </head>
 <body>
     <div class="container">
         <header>
-            <h1>Aegis Privacy Scrubber</h1>
-            <p>Zero-dependency, 100% browser-based tool to wipe image EXIF metadata and sanitize PII text.</p>
+            <div class="badge">100% Client-Side Protection</div>
+            <h1>Aegis Privacy Suite</h1>
+            <p>Strip invisible EXIF metadata tags from photos and sanitize sensitive PII text before feeding data into AI models.</p>
         </header>
 
+        <!-- Text Sanitizer Card -->
         <div class="card">
-            <h2>Text / PII Anonymizer</h2>
-            <textarea id="textInput" placeholder="Paste text containing emails, phone numbers, or IDs..."></textarea>
+            <div class="card-header">
+                <div class="card-title">🛡️ Text & PII Anonymizer</div>
+            </div>
+            <textarea id="textInput" placeholder="Paste prompt or text containing emails, phone numbers, or ID numbers..."></textarea>
+            
             <button class="btn" onclick="scrubText()">Sanitize Text</button>
-            <div id="textOutput" class="output-box" style="display:none;"></div>
+
+            <div class="stats-bar" id="statsBar" style="display: none;">
+                <div class="stat-item">Emails Masked: <span id="emailCount">0</span></div>
+                <div class="stat-item">Phones Masked: <span id="phoneCount">0</span></div>
+                <div class="stat-item">IDs Masked: <span id="idCount">0</span></div>
+            </div>
+
+            <div id="textOutput" class="output-box"></div>
         </div>
 
+        <!-- Image Metadata Stripper Card -->
         <div class="card">
-            <h2>Image EXIF Metadata Stripper</h2>
-            <label class="file-upload-label" for="imageInput">
-                📁 Click here to select an image or drag & drop<br>
-                <span style="font-size: 0.8rem; color: var(--text-muted);">(GPS, device tags, and timestamps will be cleanly stripped)</span>
+            <div class="card-header">
+                <div class="card-title">🖼️ EXIF Image Metadata Stripper</div>
+            </div>
+            
+            <label class="drop-zone" id="dropZone" for="imageInput">
+                <div class="drop-zone-icon">📷</div>
+                <p>Click to select or drop your image here</p>
+                <sub>Strips GPS location coordinates, device IDs, timestamps, and camera settings</sub>
             </label>
             <input type="file" id="imageInput" accept="image/*" onchange="scrubImage(event)">
-            <div id="imageStatus" style="margin-top: 15px; font-size: 0.9rem; color: var(--accent);"></div>
+
+            <div id="imageResult" class="success-box">
+                <div>
+                    <strong style="color: var(--success);">✔ EXIF Data Stripped Clean</strong>
+                    <div style="font-size: 0.85rem; color: var(--text-muted); margin-top: 4px;">Canvas redrawn, metadata removed.</div>
+                </div>
+                <a id="downloadBtn" href="#" download class="download-link">Download Clean File</a>
+            </div>
         </div>
+
+        <footer>
+            Aegis Privacy • Zero Server Logging • Browser-Native Processing
+        </footer>
     </div>
 
     <script>
         function scrubText() {
             let text = document.getElementById('textInput').value;
             if (!text.trim()) return;
+
+            const emails = (text.match(/[\w\.-]+@[\w\.-]+\.\w+/g) || []).length;
+            const phones = (text.match(/\b\d{10}\b/g) || []).length;
+            const ids = (text.match(/\b\d{4}\s?\d{4}\s?\d{4}\b/g) || []).length;
+
             text = text.replace(/[\w\.-]+@[\w\.-]+\.\w+/g, '[REDACTED_EMAIL]');
             text = text.replace(/\b\d{10}\b/g, '[REDACTED_PHONE]');
             text = text.replace(/\b\d{4}\s?\d{4}\s?\d{4}\b/g, '[REDACTED_ID]');
+
+            document.getElementById('emailCount').textContent = emails;
+            document.getElementById('phoneCount').textContent = phones;
+            document.getElementById('idCount').textContent = ids;
+            document.getElementById('statsBar').style.display = 'flex';
+
             const outputDiv = document.getElementById('textOutput');
             outputDiv.style.display = 'block';
             outputDiv.textContent = text;
@@ -156,8 +326,6 @@
         function scrubImage(event) {
             const file = event.target.files[0];
             if (!file) return;
-            const status = document.getElementById('imageStatus');
-            status.textContent = "Processing image in browser memory...";
 
             const reader = new FileReader();
             reader.onload = function(e) {
@@ -171,13 +339,41 @@
 
                     canvas.toBlob(function(blob) {
                         const cleanUrl = URL.createObjectURL(blob);
-                        status.innerHTML = `✅ Successfully scrubbed!<br><a href="${cleanUrl}" download="clean_${file.name}" style="color: var(--accent); font-weight: bold; text-decoration: underline; display: inline-block; margin-top: 8px;">Download Clean Image Without EXIF</a>`;
+                        const resultBox = document.getElementById('imageResult');
+                        const downloadBtn = document.getElementById('downloadBtn');
+                        
+                        downloadBtn.href = cleanUrl;
+                        downloadBtn.download = `scrubbed_${file.name}`;
+                        resultBox.style.display = 'flex';
                     }, file.type);
                 };
                 img.src = e.target.result;
             };
             reader.readAsDataURL(file);
         }
+
+        // Drag and drop handling
+        const dropZone = document.getElementById('dropZone');
+        ['dragenter', 'dragover'].forEach(eventName => {
+            dropZone.addEventListener(eventName, (e) => {
+                e.preventDefault();
+                dropZone.classList.add('dragover');
+            }, false);
+        });
+        ['dragleave', 'drop'].forEach(eventName => {
+            dropZone.addEventListener(eventName, (e) => {
+                e.preventDefault();
+                dropZone.classList.remove('dragover');
+            }, false);
+        });
+        dropZone.addEventListener('drop', (e) => {
+            const dt = e.dataTransfer;
+            const files = dt.files;
+            if (files.length > 0) {
+                document.getElementById('imageInput').files = files;
+                scrubImage({ target: { files: files } });
+            }
+        });
     </script>
 </body>
 </html>
